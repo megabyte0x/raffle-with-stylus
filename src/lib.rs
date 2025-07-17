@@ -1,47 +1,32 @@
-//!
-//! Stylus Hello World
-//!
-//! The following contract implements the Counter example from Foundry.
-//!
-//! ```solidity
-//! contract Counter {
-//!     uint256 public number;
-//!     function setNumber(uint256 newNumber) public {
-//!         number = newNumber;
-//!     }
-//!     function increment() public {
-//!         number++;
-//!     }
-//! }
-//! ```
-//!
-//! The program is ABI-equivalent with Solidity, which means you can call it from both Solidity and Rust.
-//! To do this, run `cargo stylus export-abi`.
-//!
-//! Note: this code is a template-only and has not been audited.
-//!
+//! This is a very simple implementation of Raffle contract.
+//! It uses Chainlink VRF
+//! Followed the best practices by referencing OpenZeppelin Stylus Contracts.
+
 // Allow `cargo stylus export-abi` to generate a main function.
 #![cfg_attr(not(any(test, feature = "export-abi")), no_main)]
 #![cfg_attr(not(any(test, feature = "export-abi")), no_std)]
 
 #[macro_use]
 extern crate alloc;
-
 use alloc::vec::Vec;
 
-use alloy_primitives::ruint::aliases::U256;
-/// Import items from the SDK. The prelude contains common traits and macros.
+use alloy_primitives::{uint, Address, U256, U8};
 use stylus_sdk::{alloy_sol_types::sol, prelude::*, stylus_core::log};
 
 const ENTRY_PRICE: &str = "1_000_000_000_000_000_000_000";
+const ONE: U256 = uint!(1_U256);
 
 sol! {
+
+    #[derive(Debug)]
     event Raffle_RaffleDrawn(address indexed user);
+
+    #[derive(Debug)]
     error Raffle_WrongDepositAmount();
 }
 
-#[derive(SolidityError)]
-pub enum MultiCallErrors {
+#[derive(SolidityError, Debug)]
+pub enum Error {
     WrongDepositAmount(Raffle_WrongDepositAmount),
 }
 
@@ -58,19 +43,20 @@ sol_storage! {
 /// Declare that `Counter` is a contract with the following external methods.
 #[public]
 impl Raffle {
-    pub fn enter_raffle(&mut self) -> Result<U256, MultiCallErrors> {
+    pub fn enter_raffle(&mut self) -> Result<U256, Error> {
         let entry_price: U256 = U256::from(ENTRY_PRICE.parse::<U256>().unwrap());
         let amount_received = self.vm().msg_value();
 
         if amount_received == entry_price {
-            // log(Raffle_RaffleDrawn {
-            //     user: self.vm().msg_sender(),
-            // });
-            return Ok(U256::from(1));
+            log(
+                self.vm(),
+                Raffle_RaffleDrawn {
+                    user: self.vm().msg_sender(),
+                },
+            );
+            return Ok(ONE);
         } else {
-            return Err(MultiCallErrors::WrongDepositAmount(
-                Raffle_WrongDepositAmount {},
-            ));
+            return Err(Error::WrongDepositAmount(Raffle_WrongDepositAmount {}));
         }
     }
 }
