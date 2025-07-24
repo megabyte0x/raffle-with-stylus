@@ -4,9 +4,9 @@ This is a simple implementation of the [Raffle Application by Cyfrin](https://gi
 
 ## TODO
 
-- [ ] Functions
-- [ ] Events
-- [ ] Errors
+- [x] Functions
+- [x] Events
+- [x] Errors
 - [ ] Tests
 - [ ] Relevant Comments
 - [ ] Contract Deployment on Testnet

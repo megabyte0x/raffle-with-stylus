@@ -11,8 +11,8 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 
-use alloy_primitives::{uint, Address, U256};
 use stylus_sdk::{
+    alloy_primitives::{uint, Address, U256},
     alloy_sol_types::sol,
     prelude::*,
     storage::{StorageAddress, StorageBool, StorageMap, StorageU256},
@@ -85,8 +85,8 @@ impl Raffle {
         let player = self.s_players.get(winner_index);
         let amount = self.vm().balance(self.vm().contract_address());
         match self.vm().transfer_eth(player, amount) {
-            Ok(v) => return Ok(player),
-            Err(e) => return Err(Error::TransferFailed(Raffle_TransferFailed {})),
+            Ok(_v) => return Ok(player),
+            Err(_e) => return Err(Error::TransferFailed(Raffle_TransferFailed {})),
         }
     }
 }
